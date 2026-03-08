@@ -95,7 +95,7 @@ st.markdown("""
 # 2. DATA LOADING
 # ==========================================
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=5)
 def load_data():
     original_url = "https://docs.google.com/spreadsheets/d/1CvhgmGpnmTmisc1LRPqaXu7slMHExSFfQG7Uz6xXI3w/edit?gid=0#gid=0"
     csv_url = original_url.replace("/edit?gid=0#gid=0", "/export?format=csv&gid=0")
