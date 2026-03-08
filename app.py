@@ -121,12 +121,22 @@ if selected_rdss != "All Categories":
 # 4. MACRO VIEW: KPI CARDS
 # ==========================================
 st.write("### Overall Status")
-kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
 
 total_projects = len(filtered_df)
-land_issues = len(filtered_df[filtered_df['Land Acquired?'].str.contains('Pending', na=False, case=False)])
-civil_in_progress = len(filtered_df[(filtered_df['Civil Tender Awarded'] == 'Yes') & (filtered_df['Final Handover'] == 'No')])
-completed = len(filtered_df[filtered_df['Final Handover'] == 'Yes'])
+
+# LOGIC FIX: Check if it starts with "Yes" (handles "Yes", "Yes (Lease)", etc.)
+is_land_available = filtered_df['Land Acquired?'].astype(str).str.strip().str.upper().str.startswith('YES')
+land_available_count = len(filtered_df[is_land_available])
+
+# Pending lands are the ones that are NOT "Yes" (and aren't completely blank rows)
+pending_land_df = filtered_df[~is_land_available & (filtered_df['Land Acquired?'].astype(str).str.strip() != "")]
+land_issues = len(pending_land_df)
+
+# Fixed logic to ensure we count "Yes" regardless of spacing or capitalization
+civil_in_progress = len(filtered_df[(filtered_df['Civil Tender Awarded'].astype(str).str.strip().str.upper() == 'YES') & 
+                                    (filtered_df['Final Handover'].astype(str).str.strip().str.upper() != 'YES')])
+completed = len(filtered_df[filtered_df['Final Handover'].astype(str).str.strip().str.upper() == 'YES'])
 
 with kpi1:
     st.markdown(f"""
@@ -138,30 +148,35 @@ with kpi1:
 with kpi2:
     st.markdown(f"""
         <div class="kpi-card-verified">
-            <div class="kpi-label">Completed / Handed Over</div>
-            <div class="kpi-value">{completed}</div>
+            <div class="kpi-label">Land Available</div>
+            <div class="kpi-value" style="color: #276749;">{land_available_count}</div>
         </div>
     """, unsafe_allow_html=True)
 with kpi3:
-    st.markdown(f"""
-        <div class="kpi-card-total" style="background-color: #fffaf0; border-color: #fbd38d;">
-            <div class="kpi-label">Active Civil Works</div>
-            <div class="kpi-value">{civil_in_progress}</div>
-        </div>
-    """, unsafe_allow_html=True)
-with kpi4:
     st.markdown(f"""
         <div class="kpi-card-issues">
             <div class="kpi-label">Pending Land Approvals</div>
             <div class="kpi-value" style="color: #c53030;">{land_issues}</div>
         </div>
     """, unsafe_allow_html=True)
+with kpi4:
+    st.markdown(f"""
+        <div class="kpi-card-total" style="background-color: #fffaf0; border-color: #fbd38d;">
+            <div class="kpi-label">Active Civil Works</div>
+            <div class="kpi-value">{civil_in_progress}</div>
+        </div>
+    """, unsafe_allow_html=True)
+with kpi5:
+    st.markdown(f"""
+        <div class="kpi-card-verified" style="background-color: #ebf8ff; border-color: #90cdf4;">
+            <div class="kpi-label">Completed / Handed Over</div>
+            <div class="kpi-value">{completed}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("<hr/>", unsafe_allow_html=True)
 
-# ==========================================
-# 5. PHASE PROGRESS GAUGES (Logical Color Coding)
-# ==========================================
+
 # ==========================================
 # 5. PHASE PROGRESS GAUGES (Logical Color Coding)
 # ==========================================
@@ -240,6 +255,26 @@ else:
     st.info("No data available for the selected filters.")
 
 st.markdown("<hr/>", unsafe_allow_html=True)
+
+# ==========================================
+# 6.5 PENDING LAND APPROVAL DETAILS
+# ==========================================
+st.write("### Pending Land Approvals & Explanations")
+
+if not pending_land_df.empty:
+    # Filter only the relevant columns to show the explanations cleanly
+    land_reasons_df = pending_land_df[['Zone', 'Circle', 'Name of 66 KV Substation', 'Land Acquired?']].copy()
+    
+    # Rename the column purely for visual clarity on the dashboard
+    land_reasons_df.rename(columns={'Land Acquired?': 'Current Status / Reason for Delay'}, inplace=True)
+    
+    # Display it as a full-width table
+    st.dataframe(land_reasons_df, use_container_width=True, hide_index=True)
+else:
+    st.success("✅ There are no pending land approvals in the selected criteria!")
+
+st.markdown("<hr/>", unsafe_allow_html=True)
+
 
 # ==========================================
 # 7. DETAILED PROJECT LOG (Color-coded Pandas DataFrame)
