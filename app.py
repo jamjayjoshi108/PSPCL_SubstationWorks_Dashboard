@@ -199,7 +199,8 @@ def create_gauge(val, title, color):
     fig = go.Figure(go.Indicator(
         mode = "gauge+number",
         value = val,
-        title = {'text': title, 'font': {'size': 18}},
+        # Reduced title font size slightly to fit longer words
+        title = {'text': title, 'font': {'size': 16}}, 
         number = {'suffix': "%", 'font': {'size': 24}},
         gauge = {
             'axis': {'range': [None, 100]},
@@ -209,7 +210,8 @@ def create_gauge(val, title, color):
             'bordercolor': "gray",
         }
     ))
-    fig.update_layout(height=250, margin=dict(l=20, r=20, t=30, b=20))
+    # INCREASED height to 300, and top margin (t) to 50 
+    fig.update_layout(height=300, margin=dict(l=20, r=20, t=50, b=20))
     return fig
 
 with gauge1:
