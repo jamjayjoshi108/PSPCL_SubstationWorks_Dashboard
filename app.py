@@ -59,38 +59,12 @@ st.markdown("""
 # ==========================================
 # 2. DATA LOADING (Mock Data mimicking your G-Sheet)
 # ==========================================
-@st.cache_data
+
+@st.cache_data(ttl=600) # Caches data for 10 minutes to ensure fast loading
 def load_data():
-    # In production, replace this block with your Google Sheets connection.
-    # Example using st.connection:
-    # conn = st.connection("gsheets", type=GSheetsConnection)
-    # df = conn.read(worksheet="Substation Works")
-    
-    data = {
-        'S. No.': [1, 2, 3, 4, 5],
-        'Zone': ['North Zone', 'Central Zone', 'Central Zone', 'South Zone', 'West Zone'],
-        'Circle': ['Jalandhar', 'City West Ludhiana', 'City West Ludhiana', 'Patiala', 'Bathinda'],
-        'Name of 66 KV Substation': ['Gadaipur', 'Ayali', 'Jaspal Bangar', 'Rajpura', 'Mansa'],
-        'RDSS / Non-RDSS': ['RDSS', 'Non-RDSS', 'RDSS', 'RDSS', 'Non-RDSS'],
-        'Land Acquired?': ['Yes (Lease)', 'Pending Approval', 'Pending Approval', 'Yes (Owned)', 'Yes (Owned)'],
-        
-        # Civil Phase (Yellow)
-        'Land Handover by DS to Civil': ['No', 'No', 'No', 'Yes', 'Yes'],
-        'Layout Plan Issued': ['No', 'No', 'No', 'Yes', 'Yes'],
-        'Soil bearing capacity Test': ['No', 'No', 'No', 'Yes', 'Yes'],
-        'Civil Tender Awarded': ['No', 'No', 'No', 'Yes', 'No'],
-        'Civil Progress in %': [0, 0, 0, 45, 10],
-        
-        # Electrical Phase (Orange)
-        'Material Tenders Floated': ['No', 'No', 'No', 'Yes', 'No'],
-        'PO / Work Order Issued': ['No', 'No', 'No', 'Yes', 'No'],
-        'PTF Dispatch to Site': ['No', 'No', 'No', 'No', 'No'],
-        
-        # Integration Phase (Green)
-        'TL & Equip Erection %': [0, 0, 0, 10, 0],
-        'Transformer Energized': ['No', 'No', 'No', 'No', 'No'],
-        'Final Handover': ['No', 'No', 'No', 'No', 'No']
-    }
+    csv_url = "https://docs.google.com/spreadsheets/d/1CvhgmGpnmTmisc1LRPqaXu7slMHExSFfQG7Uz6xXI3w/edit?gid=0#gid=0"
+    df = pd.read_csv(csv_url)
+    return df
     return pd.DataFrame(data)
 
 df = load_data()
