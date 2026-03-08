@@ -162,17 +162,32 @@ st.markdown("<hr/>", unsafe_allow_html=True)
 # ==========================================
 # 5. PHASE PROGRESS GAUGES (Logical Color Coding)
 # ==========================================
+# ==========================================
+# 5. PHASE PROGRESS GAUGES (Logical Color Coding)
+# ==========================================
 st.write("### State-Wide Phase Completion")
 gauge1, gauge2, gauge3 = st.columns(3)
 
 # Helper function to calculate 'Yes' percentage for a set of columns
 def calc_phase_progress(df_subset, columns):
     if len(df_subset) == 0: return 0
-    total_checks = len(df_subset) * len(columns)
-    yes_counts = df_subset[columns].apply(lambda x: x == 'Yes').sum().sum()
+    # Add a safety check to only use columns that actually exist in the dataframe
+    valid_columns = [col for col in columns if col in df_subset.columns]
+    if not valid_columns: return 0
+    
+    total_checks = len(df_subset) * len(valid_columns)
+    yes_counts = df_subset[valid_columns].apply(lambda x: x.astype(str).str.strip().str.upper() == 'YES').sum().sum()
     return (yes_counts / total_checks) * 100
 
-civil_cols = ['Land Handover by DS to Civil', 'Layout Plan Issued', 'Soil bearing capacity Test', 'Civil Tender Awarded']
+# EXACT matches to Row 3 of your Google Sheet
+civil_cols = [
+    'Land Handover by DS to Civil', 
+    'Layout Plan Issued', 
+    'Soil bearing capacity Test and Grading level done', 
+    'Earth filling done (if required)',
+    'Structural Dwgs Issued',
+    'Civil Tender Awarded'
+]
 elec_cols = ['Material Tenders Floated', 'PO / Work Order Issued', 'PTF Dispatch to Site']
 int_cols = ['Transformer Energized', 'Final Handover']
 
@@ -205,7 +220,6 @@ with gauge3:
     st.plotly_chart(create_gauge(int_prog, "Integration & Handover Phase", "#48BB78"), use_container_width=True) # Green
 
 st.markdown("<hr/>", unsafe_allow_html=True)
-
 # ==========================================
 # 6. ZONE-WISE SUMMARY (Cross-tab)
 # ==========================================
@@ -246,11 +260,26 @@ def color_status(val):
     return f'color: {color}; background-color: {bg_color}; font-weight: bold;'
 
 # Apply styling to the dataframe
-styled_df = filtered_df.style.applymap(color_status, subset=[
-    'Land Acquired?', 'Land Handover by DS to Civil', 'Layout Plan Issued', 
-    'Soil bearing capacity Test', 'Civil Tender Awarded', 
-    'Material Tenders Floated', 'PO / Work Order Issued', 
-    'PTF Dispatch to Site', 'Transformer Energized', 'Final Handover'
-])
+# Apply styling to the dataframe using the exact Row 3 headers
+columns_to_style = [
+    'Land Acquired?', 
+    'Land Handover by DS to Civil', 
+    'Layout Plan Issued', 
+    'Soil bearing capacity Test and Grading level done', 
+    'Earth filling done (if required)',
+    'Structural Dwgs Issued',
+    'Civil Tender Awarded', 
+    'Material Tenders Floated', 
+    'PO / Work Order Issued', 
+    'PTF Dispatch to Site', 
+    'Transformer Energized', 
+    'Final Handover'
+]
+
+# Only apply styling to columns that exist to prevent further KeyErrors
+valid_style_columns = [col for col in columns_to_style if col in filtered_df.columns]
+
+styled_df = filtered_df.style.map(color_status, subset=valid_style_columns)
 
 st.dataframe(styled_df, use_container_width=True, height=400, hide_index=True)
+
