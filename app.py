@@ -60,34 +60,58 @@ st.markdown("""
 # 2. DATA LOADING
 # ==========================================
 
+# @st.cache_data(ttl=600)
+# def load_data():
+#     # Your standard Google Sheets edit link
+#     original_url = "https://docs.google.com/spreadsheets/d/1CvhgmGpnmTmisc1LRPqaXu7slMHExSFfQG7Uz6xXI3w/edit?gid=0#gid=0"
+    
+#     # 1. Convert the 'edit' link into a direct 'export CSV' link
+#     csv_url = original_url.replace("/edit?gid=0#gid=0", "/export?format=csv&gid=0")
+    
+#     try:
+#         # 2. Use header=2. This makes Row 3 the official column names and ignores Rows 1 & 2.
+#         df = pd.read_csv(csv_url, header=2)
+        
+#         # 3. Drop the first row of data (which is Row 4, the "YES/NO" row). 
+#         # iloc[1:] means "keep everything from index 1 onwards".
+#         df = df.iloc[1:].reset_index(drop=True)
+        
+#         return df
+        
+#     except Exception as e:
+#         st.error(f"Error loading data: {e}")
+#         st.write("Please verify the link is accessible (Anyone with the link can view).")
+#         return pd.DataFrame() 
+
+# df = load_data()
+
+# if df.empty or 'Zone' not in df.columns:
+#     st.warning("⚠️ Data could not be loaded or is missing the 'Zone' column. Please check your CSV link and ensure the sheet format hasn't changed.")
+#     st.stop()
+
+# ==========================================
+# 2. DATA LOADING
+# ==========================================
+
 @st.cache_data(ttl=600)
 def load_data():
-    # Your standard Google Sheets edit link
     original_url = "https://docs.google.com/spreadsheets/d/1CvhgmGpnmTmisc1LRPqaXu7slMHExSFfQG7Uz6xXI3w/edit?gid=0#gid=0"
-    
-    # 1. Convert the 'edit' link into a direct 'export CSV' link
     csv_url = original_url.replace("/edit?gid=0#gid=0", "/export?format=csv&gid=0")
     
     try:
-        # 2. Use header=2. This makes Row 3 the official column names and ignores Rows 1 & 2.
         df = pd.read_csv(csv_url, header=2)
-        
-        # 3. Drop the first row of data (which is Row 4, the "YES/NO" row). 
-        # iloc[1:] means "keep everything from index 1 onwards".
         df = df.iloc[1:].reset_index(drop=True)
+        
+        # --- NEW FIX FOR S. NO. DECIMALS ---
+        # Forces the column to integers, drops decimals, and cleans up any blank rows
+        df['S. No.'] = pd.to_numeric(df['S. No.'], errors='coerce').astype('Int64').astype(str).replace('<NA>', '')
         
         return df
         
     except Exception as e:
         st.error(f"Error loading data: {e}")
         st.write("Please verify the link is accessible (Anyone with the link can view).")
-        return pd.DataFrame() 
-
-df = load_data()
-
-if df.empty or 'Zone' not in df.columns:
-    st.warning("⚠️ Data could not be loaded or is missing the 'Zone' column. Please check your CSV link and ensure the sheet format hasn't changed.")
-    st.stop()
+        return pd.DataFrame()
 
 # ==========================================
 # 3. HEADER & GLOBAL FILTERS
