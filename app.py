@@ -90,6 +90,10 @@ def load_data():
         st.write("Please verify the published CSV link is correct.")
         return pd.DataFrame() # Returns empty dataframe so the app doesn't crash completely
 
+df = load_data()
+if df.empty or 'Zone' not in df.columns:
+    st.warning("⚠️ Data could not be loaded or is missing the 'Zone' column. Please check your CSV link and ensure the sheet format hasn't changed.")
+    st.stop() # This gracefully stops the app from trying to draw the rest of the dashboard
 
 # ==========================================
 # 3. HEADER & GLOBAL FILTERS
