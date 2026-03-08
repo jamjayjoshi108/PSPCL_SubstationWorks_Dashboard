@@ -3,6 +3,11 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
+from streamlit_autorefresh import st_autorefresh
+
+# Run this line near the top of your app to make the whole page automatically refresh every 60 seconds (60000 milliseconds)
+st_autorefresh(interval=60000, key="datarefresh")
+
 # ==========================================
 # 1. PAGE CONFIGURATION & CUSTOM CSS
 # ==========================================
