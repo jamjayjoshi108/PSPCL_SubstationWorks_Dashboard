@@ -60,15 +60,6 @@ st.markdown("""
 # 2. DATA LOADING (Mock Data mimicking your G-Sheet)
 # ==========================================
 
-# @st.cache_data(ttl=600) # Caches data for 10 minutes to ensure fast loading
-# def load_data():
-#     csv_url = "https://docs.google.com/spreadsheets/d/1CvhgmGpnmTmisc1LRPqaXu7slMHExSFfQG7Uz6xXI3w/edit?gid=0#gid=0"
-#     df = pd.read_csv(csv_url)
-#     return df
-#     return pd.DataFrame(data)
-
-# df = load_data()
-
 @st.cache_data(ttl=600)
 def load_data():
     # 1. Ensure this link ends with something like '&output=csv'
