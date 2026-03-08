@@ -57,34 +57,37 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. DATA LOADING (Mock Data mimicking your G-Sheet)
+# 2. DATA LOADING
 # ==========================================
 
 @st.cache_data(ttl=600)
 def load_data():
-    # 1. Ensure this link ends with something like '&output=csv'
-    csv_url = "https://docs.google.com/spreadsheets/d/1CvhgmGpnmTmisc1LRPqaXu7slMHExSFfQG7Uz6xXI3w/edit?gid=0#gid=0"
+    # Your standard Google Sheets edit link
+    original_url = "https://docs.google.com/spreadsheets/d/1CvhgmGpnmTmisc1LRPqaXu7slMHExSFfQG7Uz6xXI3w/edit?gid=0#gid=0"
+    
+    # 1. Convert the 'edit' link into a direct 'export CSV' link
+    csv_url = original_url.replace("/edit?gid=0#gid=0", "/export?format=csv&gid=0")
     
     try:
-        # 2. skiprows=2 tells pandas to ignore Rows 1 & 2. 
-        # This makes Row 3 (your actual column names) the official header.
-        df = pd.read_csv(csv_url, skiprows=2)
+        # 2. Use header=2. This makes Row 3 the official column names and ignores Rows 1 & 2.
+        df = pd.read_csv(csv_url, header=2)
         
-        # 3. Your Sheet's Row 4 contains labels like "YES/NO". 
-        # We drop the first row of data (index 0) to remove this metadata.
-        df = df.drop(index=0).reset_index(drop=True)
+        # 3. Drop the first row of data (which is Row 4, the "YES/NO" row). 
+        # iloc[1:] means "keep everything from index 1 onwards".
+        df = df.iloc[1:].reset_index(drop=True)
         
         return df
         
     except Exception as e:
         st.error(f"Error loading data: {e}")
-        st.write("Please verify the published CSV link is correct.")
-        return pd.DataFrame() # Returns empty dataframe so the app doesn't crash completely
+        st.write("Please verify the link is accessible (Anyone with the link can view).")
+        return pd.DataFrame() 
 
 df = load_data()
+
 if df.empty or 'Zone' not in df.columns:
     st.warning("⚠️ Data could not be loaded or is missing the 'Zone' column. Please check your CSV link and ensure the sheet format hasn't changed.")
-    st.stop() # This gracefully stops the app from trying to draw the rest of the dashboard
+    st.stop()
 
 # ==========================================
 # 3. HEADER & GLOBAL FILTERS
