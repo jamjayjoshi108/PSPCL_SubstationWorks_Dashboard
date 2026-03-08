@@ -237,29 +237,29 @@ with gauge3:
     st.plotly_chart(create_gauge(int_prog, "Integration & Handover Phase", "#48BB78"), use_container_width=True) # Green
 
 st.markdown("<hr/>", unsafe_allow_html=True)
-# ==========================================
-# 6. ZONE-WISE SUMMARY (Cross-tab)
-# ==========================================
-st.write("### Zone-Wise Critical Milestones")
-# Create a summary dataframe
-if not filtered_df.empty:
-    summary_df = filtered_df.groupby('Zone').agg(
-        Total_Projects=('S. No.', 'count'),
-        Civil_Tender_Awarded=('Civil Tender Awarded', lambda x: (x == 'Yes').sum()),
-        Material_Tenders_Floated=('Material Tenders Floated', lambda x: (x == 'Yes').sum()),
-        Completed=('Final Handover', lambda x: (x == 'Yes').sum())
-    ).reset_index()
+# # ==========================================
+# # 6. ZONE-WISE SUMMARY (Cross-tab)
+# # ==========================================
+# st.write("### Zone-Wise Critical Milestones")
+# # Create a summary dataframe
+# if not filtered_df.empty:
+#     summary_df = filtered_df.groupby('Zone').agg(
+#         Total_Projects=('S. No.', 'count'),
+#         Civil_Tender_Awarded=('Civil Tender Awarded', lambda x: (x == 'Yes').sum()),
+#         Material_Tenders_Floated=('Material Tenders Floated', lambda x: (x == 'Yes').sum()),
+#         Completed=('Final Handover', lambda x: (x == 'Yes').sum())
+#     ).reset_index()
     
-    st.dataframe(summary_df, use_container_width=True, hide_index=True)
-else:
-    st.info("No data available for the selected filters.")
+#     st.dataframe(summary_df, use_container_width=True, hide_index=True)
+# else:
+#     st.info("No data available for the selected filters.")
 
-st.markdown("<hr/>", unsafe_allow_html=True)
+# st.markdown("<hr/>", unsafe_allow_html=True)
 
 # ==========================================
 # 6.5 PENDING LAND APPROVAL DETAILS
 # ==========================================
-st.write("### Pending Land Approvals & Explanations")
+st.write("### Pending Land Approvals")
 
 if not pending_land_df.empty:
     # Filter only the relevant columns to show the explanations cleanly
