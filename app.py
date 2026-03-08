@@ -89,6 +89,8 @@ st.markdown("""
 #     st.warning("⚠️ Data could not be loaded or is missing the 'Zone' column. Please check your CSV link and ensure the sheet format hasn't changed.")
 #     st.stop()
 
+
+
 # ==========================================
 # 2. DATA LOADING
 # ==========================================
@@ -112,6 +114,13 @@ def load_data():
         st.error(f"Error loading data: {e}")
         st.write("Please verify the link is accessible (Anyone with the link can view).")
         return pd.DataFrame()
+
+# ---> THESE ARE THE LINES I MISSED <---
+df = load_data()
+
+if df.empty or 'Zone' not in df.columns:
+    st.warning("⚠️ Data could not be loaded or is missing the 'Zone' column. Please check your CSV link and ensure the sheet format hasn't changed.")
+    st.stop()
 
 # ==========================================
 # 3. HEADER & GLOBAL FILTERS
